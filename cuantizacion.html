@@ -1,0 +1,124 @@
+<!DOCTYPE html><html lang="en-gb"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"><title>Cuantización - Experimetos IA</title><meta name="description" content="🚀 Bitácora: Cuantización Qwen3-8B Documentación técnica optimizada para Windows (NVIDIA CUDA) y Mac (Apple Silicon). Ejecutar en PowerShell. mkdir D:\ia\cuantitacion\bin mkdir D:\ia\cuantitacion\models\qwen3-8b mkdir&hellip;"><meta name="generator" content="Publii Open-Source CMS for Static Site"><link rel="canonical" href="./cuantizacion.html"><link rel="stylesheet" href="./assets/css/fontawesome-all.min.css?v=85514f933f9e0b82460af63f1a403fa5"><link rel="stylesheet" href="./assets/css/style.css?v=6d92336350d5374cc2b2fb5720b76be5"><noscript><link rel="stylesheet" href="./assets/css/noscript.css?v=efa867a99f5064d6729e4dc2008ad50b"></noscript><script type="application/ld+json">{"@context":"http://schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"./cuantizacion.html"},"headline":"Cuantización","datePublished":"2026-01-24T20:12+01:00","dateModified":"2026-01-24T20:38+01:00","description":"🚀 Bitácora: Cuantización Qwen3-8B Documentación técnica optimizada para Windows (NVIDIA CUDA) y Mac (Apple Silicon). Ejecutar en PowerShell. mkdir D:\\ia\\cuantitacion\\bin mkdir D:\\ia\\cuantitacion\\models\\qwen3-8b mkdir&hellip;","author":{"@type":"Person","name":"Daniel Terroba Alcala","url":"./authors/daniel-terroba-alcala/"},"publisher":{"@type":"Organization","name":"Daniel Terroba Alcala"}}</script><style>#wrapper > .bg {
+               background-image: url(./assets/images/overlay.png), linear-gradient(0deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)), url();
+           }</style><noscript><style>img[loading] {
+                    opacity: 1;
+                }</style></noscript></head><body class="is-preload page-template"><div id="wrapper"><header id="header"><a class="logo" href="./">Experimetos IA</a></header><nav id="nav"><ul class="links"><li class="active"><a href="./cuantizacion.html" target="_self">Cuantizacion</a></li></ul></nav><main id="main"><article class="post"><header class="major"><h1>Cuantización</h1><p class="post__inner"></p></header><div class="post__inner post__entry"><div id="quant-guide-container"><h1 style="color: #58a6ff; font-size: 2em; margin-bottom: 10px;">🚀 Bitácora: Cuantización Qwen3-8B</h1><p>Documentación técnica optimizada para <strong>Windows (NVIDIA CUDA)</strong> y <strong>Mac (Apple Silicon)</strong>.</p><div class="note"><strong>Objetivo:</strong> Convertir el modelo original (16GB, lento) a una versión comprimida e inteligente usando <strong>Imatrix</strong>.</div><div class="tabs"><div class="tab active">🪟 Windows (NVIDIA)</div><div class="tab">🍎 Mac (Apple Silicon)</div></div><div id="windows-content" class="tab-content active"><h2>Fase 1: Preparación (Windows)</h2><p>Ejecutar en <strong>PowerShell</strong>.</p><div class="code-wrapper"><div class="code-header">1.1 Carpetas</div><div> </div><div> </div><div> </div><pre><code>mkdir D:\ia\cuantitacion\bin
+mkdir D:\ia\cuantitacion\models\qwen3-8b
+mkdir D:\ia\cuantitacion\bench
+mkdir D:\ia\cuantitacion\results</code></pre></div><div class="code-wrapper"><div class="code-header">1.2 Instalación (Winget)</div><pre><code>winget install -e --id Python.Python.3.12
+winget install -e --id Git.Git
+winget install -e --id GitHub.cli</code></pre></div><div class="code-wrapper"><div class="code-header">1.3 Librerías Python</div><pre><code>py -m pip install -U pip
+py -m pip install -U huggingface_hub</code></pre></div><h2>Fase 2: Motor llama.cpp (CUDA 12)</h2><div class="code-wrapper"><div class="code-header">Descarga Segura con Python (Evita errores de curl)</div><pre><code>cd D:\ia\cuantitacion\bin
+
+# Usamos Python para descargar el zip de CUDA sin errores de sintaxis
+py -c "import urllib.request, zipfile, os; url = 'https://github.com/ggml-org/llama.cpp/releases/download/b7700/llama-b7700-bin-win-cuda-cu12.2.0-x64.zip'; filename = 'llama.zip'; print(f'Descargando {url}...'); urllib.request.urlretrieve(url, filename); print('Descomprimiendo...'); with zipfile.ZipFile(filename, 'r') as zip_ref: zip_ref.extractall('llama'); os.remove(filename); print('¡Instalación completada!')"
+
+# Verificamos
+dir D:\ia\cuantitacion\bin\llama | findstr /i "llama-cli"</code></pre></div><h2>Fase 2.5: Descargar Modelo</h2><div class="code-wrapper"><div class="code-header">Descarga verificada</div><pre><code>py -c "from huggingface_hub import hf_hub_download; hf_hub_download(repo_id='ggml-org/Qwen3-8B-GGUF', filename='Qwen3-8B-f16.gguf', local_dir=r'D:\ia\cuantitacion\models\qwen3-8b', local_dir_use_symlinks=False)"</code></pre></div><h2>Fase 3: Imatrix</h2><div class="code-wrapper"><div class="code-header">3.1 Generar Datos</div><pre><code>@'
+[ES] Lucía encuentra un cuaderno rojo en la estación. Ethan lleva una bufanda azul.
+[EN] Keep names and objects consistent. Do not contradict earlier facts.
+[ES] Escribe instrucciones claras y cumple restricciones de forma estricta.
+[EN] Follow constraints, keep a 3-act structure, avoid repetition loops.
+[ES] Diálogo: —¿Dónde está el cuaderno? —Aquí, en mi mochila.
+[EN] Dialogue: "We only have one chance," he said quietly.
+'@ | Set-Content -Encoding utf8 D:\ia\cuantitacion\models\qwen3-8b\calib_es_en.txt
+
+$content = Get-Content D:\ia\cuantitacion\models\qwen3-8b\calib_es_en.txt -Raw
+1..220 | ForEach-Object { $content } | Set-Content -Encoding utf8 D:\ia\cuantitacion\models\qwen3-8b\calib_es_en_big.txt</code></pre></div><div class="code-wrapper"><div class="code-header">3.2 Ejecutar Análisis (GPU activa)</div><pre><code>cd D:\ia\cuantitacion\bin\llama
+
+.\llama-imatrix.exe `
+   -m D:\ia\cuantitacion\models\qwen3-8b\Qwen3-8B-f16.gguf `
+   -f D:\ia\cuantitacion\models\qwen3-8b\calib_es_en_big.txt `
+   -o D:\ia\cuantitacion\models\qwen3-8b\Qwen3-8B.imatrix.dat `
+   -t 0 `
+   -ngl 99</code></pre></div><h2>Fase 4: Cuantización</h2><div class="code-wrapper"><div class="code-header">Comprimir a Q2_K</div><pre><code>.\llama-quantize.exe `
+   --imatrix D:\ia\cuantitacion\models\qwen3-8b\Qwen3-8B.imatrix.dat `
+   D:\ia\cuantitacion\models\qwen3-8b\Qwen3-8B-f16.gguf `
+   D:\ia\cuantitacion\models\qwen3-8b\Qwen3-8B-Q2_K.gguf `
+   Q2_K</code></pre></div></div><div id="mac-content" class="tab-content"><h2>Fase 1: Preparación (Mac)</h2><div class="code-wrapper"><div class="code-header">1.1 Carpetas</div><pre><code>mkdir -p ~/ia/cuantitacion/bin
+mkdir -p ~/ia/cuantitacion/models/qwen3-8b
+mkdir -p ~/ia/cuantitacion/bench
+mkdir -p ~/ia/cuantitacion/results</code></pre></div><div class="code-wrapper"><div class="code-header">1.2 Dependencias</div><pre><code>brew install python
+python3 -m pip install -U pip
+python3 -m pip install -U huggingface_hub</code></pre></div><h2>Fase 2: Motor llama.cpp (ARM64)</h2><div class="code-wrapper"><div class="code-header">Descarga versión Apple Silicon</div><pre><code>cd ~/ia/cuantitacion/bin
+
+tag="b7700"
+zipName="llama-$tag-bin-macos-arm64.zip"
+url="https://github.com/ggml-org/llama.cpp/releases/download/$tag/$zipName"
+
+echo "Descargando..."
+curl -L "$url" -o "$zipName"
+
+unzip -o "$zipName" -d llama
+ls -lh llama/llama-cli</code></pre></div><h2>Fase 2.5: Descargar Modelo</h2><div class="code-wrapper"><div class="code-header">Script Python</div><pre><code>python3 -c "from huggingface_hub import hf_hub_download; import os; hf_hub_download(repo_id='ggml-org/Qwen3-8B-GGUF', filename='Qwen3-8B-f16.gguf', local_dir=os.path.expanduser('~/ia/cuantitacion/models/qwen3-8b'), local_dir_use_symlinks=False)"</code></pre></div><h2>Fase 3: Imatrix</h2><div class="code-wrapper"><div class="code-header">3.1 Generar Datos</div><pre><code>dst=~/ia/cuantitacion/models/qwen3-8b/calib_es_en_big.txt
+block="[ES] Lucía encuentra un cuaderno rojo... [EN] Keep names consistent..."
+
+# Bucle para crear archivo grande
+for i in {1..220}; do echo "$block" &gt;&gt; "$dst"; done</code></pre></div><div class="code-wrapper"><div class="code-header">3.2 Ejecutar Análisis</div><pre><code>cd ~/ia/cuantitacion/bin/llama
+./llama-imatrix \
+   -m ~/ia/cuantitacion/models/qwen3-8b/Qwen3-8B-f16.gguf \
+   -f ~/ia/cuantitacion/models/qwen3-8b/calib_es_en_big.txt \
+   -o ~/ia/cuantitacion/models/qwen3-8b/Qwen3-8B.imatrix.dat \
+   -ngl 99</code></pre></div><h2>Fase 4: Cuantización</h2><div class="code-wrapper"><div class="code-header">Comprimir</div><pre><code>./llama-quantize \
+   --imatrix ~/ia/cuantitacion/models/qwen3-8b/Qwen3-8B.imatrix.dat \
+   ~/ia/cuantitacion/models/qwen3-8b/Qwen3-8B-f16.gguf \
+   ~/ia/cuantitacion/models/qwen3-8b/Qwen3-8B-Q2_K.gguf \
+   Q2_K</code></pre></div></div><h2>📊 Fase 5: El Duelo Final</h2><div class="chart-box"><canvas id="speedChart"></canvas></div><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script>// Lógica de Pestañas
+        function switchOSTab(os) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(os + '-content').classList.add('active');
+            
+            // Buscar y activar el botón correcto
+            const tabs = document.querySelectorAll('.tab');
+            if (os === 'windows') tabs[0].classList.add('active');
+            else tabs[1].classList.add('active');
+        }
+
+        // Lógica de Copiado
+        function copyCode(btn) {
+            const pre = btn.nextElementSibling;
+            const text = pre.innerText;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const original = btn.innerText;
+                btn.innerText = '¡Listo!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.innerText = original;
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        // Cargar Gráfica solo si Chart.js está disponible
+        window.addEventListener('load', function() {
+            if (typeof Chart !== 'undefined') {
+                const ctx = document.getElementById('speedChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Qwen 1.7B (F16 Original)', 'Qwen 8B (Q2_K Optimizado)'],
+                        datasets: [{
+                            label: 'Velocidad (Tokens por Segundo)',
+                            data: [62.11, 53.15],
+                            backgroundColor: ['rgba(54, 162, 235, 0.5)', 'rgba(75, 192, 192, 0.5)'],
+                            borderColor: ['#58a6ff', '#238636'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: '#30363d' }, ticks: { color: '#8b949e' } },
+                            x: { ticks: { color: '#c9d1d9' } }
+                        },
+                        plugins: { legend: { labels: { color: '#c9d1d9' } } }
+                    }
+                });
+            } else {
+                document.querySelector('.chart-box').innerHTML = '<p style="color:red; text-align:center;">Chart.js no se ha cargado. Verifica tu conexión.</p>';
+            }
+        });</script></div><h2>Imagenes</h2><p> </p><figure class="post__image"><img loading="lazy" src="./media/posts/1/1-2.jpeg" alt="" width="1599" height="899" sizes="(max-width: 48em) 100vw, 768px" srcset="./media/posts/1/responsive/1-2-xs.jpeg 300w, ./media/posts/1/responsive/1-2-sm.jpeg 480w, ./media/posts/1/responsive/1-2-md.jpeg 768w, ./media/posts/1/responsive/1-2-lg.jpeg 1024w, ./media/posts/1/responsive/1-2-xl.jpeg 1360w, ./media/posts/1/responsive/1-2-2xl.jpeg 1600w"></figure><p> </p><p> </p><figure class="post__image"><img loading="lazy" src="./media/posts/1/2.jpeg" alt="" width="1599" height="899" sizes="(max-width: 48em) 100vw, 768px" srcset="./media/posts/1/responsive/2-xs.jpeg 300w, ./media/posts/1/responsive/2-sm.jpeg 480w, ./media/posts/1/responsive/2-md.jpeg 768w, ./media/posts/1/responsive/2-lg.jpeg 1024w, ./media/posts/1/responsive/2-xl.jpeg 1360w, ./media/posts/1/responsive/2-2xl.jpeg 1600w"></figure><p> </p><p> </p><figure class="post__image"><img loading="lazy" src="./media/posts/1/3.jpeg" alt="" width="1920" height="1080" sizes="(max-width: 48em) 100vw, 768px" srcset="./media/posts/1/responsive/3-xs.jpeg 300w, ./media/posts/1/responsive/3-sm.jpeg 480w, ./media/posts/1/responsive/3-md.jpeg 768w, ./media/posts/1/responsive/3-lg.jpeg 1024w, ./media/posts/1/responsive/3-xl.jpeg 1360w, ./media/posts/1/responsive/3-2xl.jpeg 1600w"></figure><p> </p><p> </p><figure class="post__image"><img loading="lazy" src="./media/posts/1/4.jpeg" alt="" width="1920" height="1080" sizes="(max-width: 48em) 100vw, 768px" srcset="./media/posts/1/responsive/4-xs.jpeg 300w, ./media/posts/1/responsive/4-sm.jpeg 480w, ./media/posts/1/responsive/4-md.jpeg 768w, ./media/posts/1/responsive/4-lg.jpeg 1024w, ./media/posts/1/responsive/4-xl.jpeg 1360w, ./media/posts/1/responsive/4-2xl.jpeg 1600w"></figure><p> </p><p> </p><figure class="post__image"><img loading="lazy" src="./media/posts/1/5.jpeg" alt="" width="1599" height="899" sizes="(max-width: 48em) 100vw, 768px" srcset="./media/posts/1/responsive/5-xs.jpeg 300w, ./media/posts/1/responsive/5-sm.jpeg 480w, ./media/posts/1/responsive/5-md.jpeg 768w, ./media/posts/1/responsive/5-lg.jpeg 1024w, ./media/posts/1/responsive/5-xl.jpeg 1360w, ./media/posts/1/responsive/5-2xl.jpeg 1600w"></figure><p> </p><p> </p><figure class="post__image"><img loading="lazy" src="./media/posts/1/6.jpeg" alt="" width="1599" height="899" sizes="(max-width: 48em) 100vw, 768px" srcset="./media/posts/1/responsive/6-xs.jpeg 300w, ./media/posts/1/responsive/6-sm.jpeg 480w, ./media/posts/1/responsive/6-md.jpeg 768w, ./media/posts/1/responsive/6-lg.jpeg 1024w, ./media/posts/1/responsive/6-xl.jpeg 1360w, ./media/posts/1/responsive/6-2xl.jpeg 1600w"></figure><p> </p><p> </p><figure class="post__image"><img loading="lazy" src="./media/posts/1/7.jpeg" alt="" width="1599" height="899" sizes="(max-width: 48em) 100vw, 768px" srcset="./media/posts/1/responsive/7-xs.jpeg 300w, ./media/posts/1/responsive/7-sm.jpeg 480w, ./media/posts/1/responsive/7-md.jpeg 768w, ./media/posts/1/responsive/7-lg.jpeg 1024w, ./media/posts/1/responsive/7-xl.jpeg 1360w, ./media/posts/1/responsive/7-2xl.jpeg 1600w"></figure><p> </p></div></article></main><footer id="copyright"><p>Hecho por Daniel Terroba Alcalá</p></footer></div><script src="./assets/js/jquery.min.js?v=c9771cc3e90e18f5336eedbd0fffb2cf"></script><script src="./assets/js/jquery.scrollex.min.js?v=f89065e3d988006af9791b44561d7c90"></script><script src="./assets/js/jquery.scrolly.min.js?v=1ed5a78bde1476875a40f6b9ff44fc14"></script><script src="./assets/js/browser.min.js?v=c07298dd19048a8a69ad97e754dfe8d0"></script><script src="./assets/js/breakpoints.min.js?v=81a479eb099e3b187613943b085923b8"></script><script src="./assets/js/util.min.js?v=4201a626f8c9b614a663b3a1d7d82615"></script><script src="./assets/js/main.min.js?v=56233c354bd814758be8bff42f7e13a5"></script><script>/*<![CDATA[*/var images=document.querySelectorAll("img[loading]");for(var i=0;i<images.length;i++){if(images[i].complete){images[i].classList.add("is-loaded")}else{images[i].addEventListener("load",function(){this.classList.add("is-loaded")},false)}};/*]]>*/</script></body></html>
